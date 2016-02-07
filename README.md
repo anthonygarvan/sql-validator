@@ -17,7 +17,7 @@ This is a demo application for running a set of business rules against a specifi
 - A sandbox is created for each job in the form of an new database, this provides excellent isolation and avoids naming collisions
 
 ## Theory
-ANSI-SQL is a great language for writing rules, because most common data types operators are already built into the language, and it is already widely known and easily learned. It is also great because it scales to any data volume- traditional RDBMS systems are already heavily optimized, and for very large datasets there are massively parallel systems such as amazon Redshift and Spark-Sql. So, for those of you writing rules out there, don't invent some domain specific language - just use SQL!
+ANSI-SQL is a great language for writing rules, because most common data types operators are already built into the language, and it is already widely known and easily learned. Advanced users can even run the validations in place on their existing database systems or even csv file (with textql for example). It is also great because it scales to any data volume- traditional RDBMS systems are already heavily optimized, and for very large datasets there are massively parallel systems such as amazon Redshift and Spark-Sql. So, for those of you writing rules out there, don't invent some domain specific language - just use SQL!
 
 To turn SQL into a rules engine, just think of a SELECT statement as selecting the set of invalid rows from a dataset. Those SQL statements can be organized to run in parallel for increased performance. 
 
