@@ -1,0 +1,14 @@
+id,sql,description
+0, SELECT * FROM appropriations WHERE AllocationTransferRecipientAgencyId < 0, Agency ID must be positive
+1, SELECT * FROM appropriations WHERE AllocationTransferRecipientAgencyId > 999, Agency ID must be three digits
+2, SELECT * FROM appropriations WHERE AppropriationAccountResponsibleAgencyId < 0, Agency ID must be positive
+3, SELECT * FROM appropriations WHERE AppropriationAccountResponsibleAgencyId > 999, Agency ID must be three digits
+4, SELECT * FROM appropriations WHERE ObligationAvailabilityPeriodStartFiscalYear < 0, Year must be positive
+5, SELECT * FROM appropriations WHERE ObligationAvailabilityPeriodStartFiscalYear > 2100 OR ObligationAvailabilityPeriodStartFiscalYear < 1900, Year must range from 1900 to 2100
+6, SELECT * FROM appropriations WHERE ObligationAvailabilityPeriodEndFiscalYear > 2100 OR ObligationAvailabilityPeriodEndFiscalYear < 1900, Year must range from 1900 to 2100
+7, SELECT * FROM appropriations WHERE AppropriationMainAccountCode < 0, Main Account Code must be positive
+8, SELECT * FROM appropriations WHERE AppropriationMainAccountCode > 999, Main Account Code must be three digits
+9, SELECT * FROM appropriations WHERE AppropriationSubAccountCode < 0, Sub Account Code must be positive
+10, SELECT * FROM appropriations WHERE AppropriationSubAccountCode > 999, Sub Account Code must be three digits
+11, "SELECT * FROM appropriations WHERE ObligationUnlimitedAvailabilityPeriodIndicator NOT IN ('X', 'F', 'A', 'NULL')","Indicator must be X, F, A, or blank"
+12, SELECT * from appropriations app LEFT JOIN tas ON app.AllocationTransferRecipientAgencyId="ATA" WHERE "ATA" IS NULL, Allocation Transfer Agency Invalid
