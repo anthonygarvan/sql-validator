@@ -9,6 +9,7 @@ This is a demo application for a business rules engine based on SQL rather than 
 - SCALABILITY: With advances in massively parallel processing systems like Amazon Redshift and Spark-SQL, you can be confident that your rules will always run in a time-boxed way for any data size, in case you grow out of your traditional relational database's already considerable performance. 
 
 ## Example Output
+Here's an example output from the rules engine when processing a valid appropriations file:
 ```shell
 Running rule 0: SELECT * FROM appropriations WHERE AllocationTransferRecipientAgencyId < 0
 ==> Found 0 invalid rows.
@@ -37,6 +38,7 @@ Running rule 11: SELECT * FROM appropriations WHERE ObligationUnlimitedAvailabil
 Running rule 12: SELECT * from appropriations app LEFT JOIN tas ON app.AppropriationMainAccountCode="MAIN" WHERE "MAIN" IS NULL
 ==> Found 0 invalid rows.
 ```
+More detailed error reporting could be easily added, both at the ingest stage (as data is being loaded from the csv to the table) and the rule execution stage.
 
 ### Requirements:
 - [postgres](http://www.postgresql.org/download/)
@@ -62,7 +64,7 @@ To run a valid appropriations file through the rule set, use:
 $ python test.py
 ```
 
-This repo also demonstrates an architecture for easy parallelization using worker nodes rather than threading, using a shared database table as a simple queue. This is prefered over threading since workers can be distributed easily across many nodes, but code built around inter-process calls cannot be.
+This repo also demonstrates an architecture for easy parallelization using worker nodes rather than threading, using a shared database table as a simple queue. This is prefered over threading since workers can be distributed easily across many nodes.
 To see that in use, open up one terminal tab and start the worker node with:
 ```shell
 $ python worker.py

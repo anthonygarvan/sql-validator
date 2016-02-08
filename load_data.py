@@ -16,7 +16,7 @@ def upload_file(file_path):
 	return {'job_id': job_id}
 
 def create_table(job_id, schema_name):
-	#try:
+	try:
 		meta_c = meta_conn.cursor()
 		meta_c.execute("SELECT file_path from jobs WHERE job_id=%d" % job_id)
 		file_path = meta_c.fetchall()[0][0]
@@ -44,8 +44,8 @@ def create_table(job_id, schema_name):
 		meta_c.execute("UPDATE jobs SET status='table_created' WHERE job_id=%d" % job_id)
 
 		return {'status': 'success', 'message': 'Raw data loaded.', 'job_id': job_id, 'data_row_count': row_num}
-	#except Exception as e:
-	#	return {'status': 'error', 'message': str(e)}
+	except Exception as e:
+		return {'status': 'error', 'message': str(e)}
 
 def load_tas_into_job(job_id):
 	os.system('pg_dump --username=testUser -t tas validator | psql job_%d > postgres.log' % job_id)
