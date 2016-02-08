@@ -7,14 +7,7 @@ import os
 
 meta_conn = psycopg2.connect("dbname='validator' user='testUser' host='localhost' password='testPwd'")
 meta_conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-try:
-	meta_c = meta_conn.cursor()
-	meta_c.execute("""CREATE TABLE jobs ( 
-					job_id int,
-					file_path varchar(255), 
-					status varchar(255))""")
-except:
-	print 'using existing jobs table...'
+meta_c = meta_conn.cursor()
 
 def upload_file(file_path):
 	# this doesn't actually upload a file, it's just a placeholder demonstrating a reasonable architecture.
@@ -55,9 +48,19 @@ def create_table(job_id, schema_name):
 	#	return {'status': 'error', 'message': str(e)}
 
 def load_tas_into_job(job_id):
-	os.system('pg_dump --username=testUser -t tas validator | psql job_%d' % job_id)
+	os.system('pg_dump --username=testUser -t tas validator | psql job_%d > postgres.log' % job_id)
 	meta_c.execute("UPDATE jobs SET status='loading_tas' WHERE job_id='%d';" % job_id)
 
+def create_jobs_table():
+	meta_c = meta_conn.cursor()
+	try:
+		meta_c.execute('DROP TABLE jobs;')
+	except:
+		pass
+	meta_c.execute("""CREATE TABLE jobs ( 
+					job_id int,
+					file_path varchar(255), 
+					status varchar(255))""")
 
 def load_tas_into_validator(job_id, file_name):
 	# this schema should be hard-coded since it is static, I just didn't want to go through each column.
@@ -107,7 +110,15 @@ def clean_databases():
 
 
 if __name__ == '__main__':
-	#clean_databases()
-	load_tas_into_validator(1, 'testData/all_tas_betc.csv')
-	#upload_file('testData/appropriationsValid.csv')
-	#print 'file uploaded'
+	import sys
+	if len(sys.argv) > 1:
+		flag = sys.argv[1]
+
+		if flag == '--initialize':
+			clean_databases()
+			create_jobs_table()
+			load_tas_into_validator(1, 'testData/all_tas_betc.csv')
+	else:		
+		upload_file('testData/appropriationsValid.csv')
+		print 'file uploaded'
+	

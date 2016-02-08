@@ -1,14 +1,5 @@
 # Validator
 
-### Requirements:
-- [postgres](http://www.postgresql.org/download/)
-- [pyscopg2](http://initd.org/psycopg/docs/install.html)
-
-### Usage:
-```shell
-$ python test.py
-```
-
 ## What is this thing
 This is a demo application for a business rules engine based on SQL rather than a domain specific language. It is designed to demonstrate some cool features of using SQL as a langauge for defining business rules:
 - SQL rules are easy to write and understand. 
@@ -46,3 +37,38 @@ Running rule 11: SELECT * FROM appropriations WHERE ObligationUnlimitedAvailabil
 Running rule 12: SELECT * from appropriations app LEFT JOIN tas ON app.AppropriationMainAccountCode="MAIN" WHERE "MAIN" IS NULL
 ==> Found 0 invalid rows.
 ```
+
+### Requirements:
+- [postgres](http://www.postgresql.org/download/)
+- [pyscopg2](http://initd.org/psycopg/docs/install.html)
+
+### Setup
+You'll need to install postgres and run
+```sql
+CREATE DATABASE validator
+```
+I also currently have the username and password hard-coded to `testUser` and `testPwd`. You'll need to create that username and password or change the code.
+
+The validation database is the master database which serves as a source of truth for the TAS dataset and also provided management of jobs for worker nodes through the `jobs` table. To get it set up you'll need to run:
+
+```shell
+$ python load_data.py --initialize
+```
+It can take a few minutes to upload all the data.
+
+### Usage:
+To run a valid appropriations file through the rule set, use:
+```shell
+$ python test.py
+```
+
+This repo also demonstrates an architecture for easy parallelization using worker nodes rather than threading, using a shared database table as a simple queue. This is prefered over threading since workers can be distributed easily across many nodes, but code built around inter-process calls cannot be.
+To see that in use, open up one terminal tab and start the worker node with:
+```shell
+$ python worker.py
+```
+Then, to simulate a new file coming in for processing, run:
+```shell
+$ python load_data.py
+```
+The results will appear in tab with worker.py running.
