@@ -1,4 +1,4 @@
-# Validator
+# sql-validator
 
 ## What is this thing
 This is a demo application for a business rules engine based on SQL rather than a domain specific language. It is designed to demonstrate some cool features of using SQL as a langauge for defining business rules:
