@@ -61,8 +61,12 @@ def load_tas_into_job(job_id):
 
 def load_tas_into_validator(job_id, file_name):
 	# this schema should be hard-coded since it is static, I just didn't want to go through each column.
+
 	c = meta_conn.cursor()
-	c.execute('DROP TABLE tas;')
+	try:
+		c.execute('DROP TABLE tas;')
+	except:
+		print 'tas table not present.'
 	reader = csv.reader(open(file_name, 'rb'), quotechar='"', delimiter=',',
                      quoting=csv.QUOTE_ALL, skipinitialspace=True)
 	# skip first row
@@ -72,7 +76,7 @@ def load_tas_into_validator(job_id, file_name):
 	header = reader.next()
 
 	# create table
-	int_cols = ['ATA']
+	int_cols = ['ATA', 'MAIN']
 	sql = 'CREATE TABLE tas (%s)' % ', ' \
 			.join(['"%s" varchar(255)' % col_name if col_name not in int_cols else '"%s" INT NULL' % col_name for col_name in header])
 	c.execute(sql)
@@ -104,6 +108,6 @@ def clean_databases():
 
 if __name__ == '__main__':
 	#clean_databases()
-	#load_tas_into_validator(1, 'testData/all_tas_betc.csv')
-	upload_file('testData/appropriationsValid.csv')
+	load_tas_into_validator(1, 'testData/all_tas_betc.csv')
+	#upload_file('testData/appropriationsValid.csv')
 	#print 'file uploaded'

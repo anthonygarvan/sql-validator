@@ -1,11 +1,10 @@
 # Validator
 
-Example of validation of schemas / data integrity with SQL rules. 
+### Requirements:
+- [postgres](http://www.postgresql.org/download/)
+- [pyscopg2](http://initd.org/psycopg/docs/install.html)
 
-### REQUIREMENTS:
-postgres / pyscopg2
-
-### USAGE:
+### Usage:
 ```shell
 $ python test.py
 ```
@@ -44,6 +43,6 @@ Running rule 10: SELECT * FROM appropriations WHERE AppropriationSubAccountCode 
 ==> Found 0 invalid rows.
 Running rule 11: SELECT * FROM appropriations WHERE ObligationUnlimitedAvailabilityPeriodIndicator NOT IN ('X', 'F', 'A', 'NULL')
 ==> Found 0 invalid rows.
-Running rule 12: SELECT * from appropriations app LEFT JOIN tas ON app.AllocationTransferRecipientAgencyId="ATA" WHERE "ATA" IS NULL
-==> Found 20 invalid rows.
+Running rule 12: SELECT * from appropriations app LEFT JOIN tas ON app.AppropriationMainAccountCode="MAIN" WHERE "MAIN" IS NULL
+==> Found 0 invalid rows.
 ```

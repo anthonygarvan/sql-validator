@@ -11,4 +11,4 @@ id,sql,description
 9, SELECT * FROM appropriations WHERE AppropriationSubAccountCode < 0, Sub Account Code must be positive
 10, SELECT * FROM appropriations WHERE AppropriationSubAccountCode > 999, Sub Account Code must be three digits
 11, "SELECT * FROM appropriations WHERE ObligationUnlimitedAvailabilityPeriodIndicator NOT IN ('X', 'F', 'A', 'NULL')","Indicator must be X, F, A, or blank"
-12, SELECT * from appropriations app LEFT JOIN tas ON app.AllocationTransferRecipientAgencyId="ATA" WHERE "ATA" IS NULL, Allocation Transfer Agency Invalid
+12, SELECT * from appropriations app LEFT JOIN tas ON app.AppropriationMainAccountCode="MAIN" WHERE "MAIN" IS NULL, Main account code is Invalid

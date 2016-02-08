@@ -15,6 +15,8 @@ try:
 			result = create_table(job_id, 'appropriations')
 			load_tas_into_job(job_id)
 			run_rules(job_id, 'appropriations')
+			print "Dropping database..."
+			clean_database(job_id)
 		sleep(0.2)
 except KeyboardInterrupt:
 	print "Process cancelled by user."
