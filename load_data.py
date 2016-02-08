@@ -4,21 +4,34 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from random import randint
 import os
 
+
+meta_conn = psycopg2.connect("dbname='validator' user='testUser' host='localhost' password='testPwd'")
+meta_conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 try:
-	meta_conn = psycopg2.connect("dbname='validator' user='testUser' host='localhost' password='testPwd'")
-	meta_conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-	meta_conn.cursor().execute("""CREATE TABLE jobs ( 
-					job_id int, 
+	meta_c = meta_conn.cursor()
+	meta_c.execute("""CREATE TABLE jobs ( 
+					job_id int,
+					file_path varchar(255), 
 					status varchar(255))""")
 except:
 	print 'using existing jobs table...'
 
-def create_table(file_path, schema_name):
-	try:
+def upload_file(file_path):
+	# this doesn't actually upload a file, it's just a placeholder demonstrating a reasonable architecture.
+	job_id = randint(0, 10**5)
+	meta_c.execute("INSERT INTO jobs (job_id, file_path, status) VALUES ('%d', '%s', '%s')" % (job_id, file_path, 'file_uploaded'))
+	return {'job_id': job_id}
+
+def create_table(job_id, schema_name):
+	#try:
+		meta_c = meta_conn.cursor()
+		meta_c.execute("SELECT file_path from jobs WHERE job_id=%d" % job_id)
+		file_path = meta_c.fetchall()[0][0]
+
 		f = open(file_path, 'rb')
 		reader = csv.reader(f)
 		header = reader.next()
-		job_id = randint(0, 10**5)
+		
 		meta_conn.cursor().execute('CREATE DATABASE job_%d;' % job_id)
 		conn = psycopg2.connect("dbname='job_%d' user='testUser' host='localhost' password='testPwd'" % job_id)
 		c = conn.cursor()
@@ -27,7 +40,7 @@ def create_table(file_path, schema_name):
 		row_num = 0
 		for row in reader:
 			row = [entry if entry is not '' else 'NULL' for entry in row]
-			sql = 'INSERT INTO %s (%s) VALUES (\'%s\')' % (schema_name, ', '.join(header), '\', \''.join(row))
+			sql = "INSERT INTO %s (%s) VALUES ('%s')" % (schema_name, ', '.join(header), "', '".join(row))
 			c.execute(sql)
 			row_num += 1
 
@@ -35,17 +48,19 @@ def create_table(file_path, schema_name):
 		conn.close()
 
 		meta_c = meta_conn.cursor()
-		meta_c.execute('INSERT INTO jobs VALUES (%d, \'data_loaded\')' % job_id)
-		#meta_conn.commit()
+		meta_c.execute("UPDATE jobs SET status='table_created' WHERE job_id=%d" % job_id)
 
 		return {'status': 'success', 'message': 'Raw data loaded.', 'job_id': job_id, 'data_row_count': row_num}
-	except Exception as e:
-		return {'status': 'error', 'message': str(e)}
+	#except Exception as e:
+	#	return {'status': 'error', 'message': str(e)}
 
 def load_tas_into_job(job_id):
 	os.system('pg_dump --username=testUser -t tas validator | psql job_%d' % job_id)
+	meta_c.execute("UPDATE jobs SET status='loading_tas' WHERE job_id='%d';" % job_id)
+
 
 def load_tas_into_validator(job_id, file_name):
+	# this schema should be hard-coded since it is static, I just didn't want to go through each column.
 	c = meta_conn.cursor()
 	c.execute('DROP TABLE tas;')
 	reader = csv.reader(open(file_name, 'rb'), quotechar='"', delimiter=',',
@@ -71,6 +86,10 @@ def load_tas_into_validator(job_id, file_name):
 
 	return {'tas_rows_inserted': rows_inserted}
 
+def clean_database(job_id):
+	c = meta_conn.cursor()
+	c.execute('DROP DATABASE job_%d' % job_id)
+
 def clean_databases():
 	c = meta_conn.cursor()
 	c.execute('SELECT datname FROM pg_database WHERE datistemplate = false;')
@@ -80,8 +99,11 @@ def clean_databases():
 			print 'dropping %s' % row[0]
 			c.execute('DROP DATABASE %s' % row[0])
 
+	c.execute('DROP TABLE jobs;')
+
 
 if __name__ == '__main__':
-	#print create_table('testData/appropriationsValid.csv', 'appropriations')
-	clean_databases()
+	#clean_databases()
 	#load_tas_into_validator(1, 'testData/all_tas_betc.csv')
+	upload_file('testData/appropriationsValid.csv')
+	#print 'file uploaded'

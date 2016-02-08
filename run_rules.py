@@ -1,9 +1,14 @@
 import psycopg2
 from os import listdir
 from os.path import splitext
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 import csv
 
 def run_rules(job_id, schema_name):
+	meta_conn = psycopg2.connect("dbname='validator' user='testUser' host='localhost' password='testPwd'")
+	meta_conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+	meta_c = meta_conn.cursor()
+	meta_c.execute('UPDATE jobs SET status=\'starting_rules\' WHERE job_id=%d' % job_id)
 	conn = psycopg2.connect("dbname='job_%d' user='testUser' host='localhost' password='testPwd'" % job_id)
 	c = conn.cursor()
 
@@ -20,3 +25,5 @@ def run_rules(job_id, schema_name):
 			invalid_count += 1
 		print '==> Found %d invalid rows.' % invalid_count
 	conn.close()
+	meta_c.execute("UPDATE jobs SET status='finished_rules' WHERE job_id=%d" % job_id)
+	meta_conn.close()
