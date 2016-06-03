@@ -2,11 +2,12 @@
 
 ## What is this thing
 This is a demo application for a business rules engine based on SQL rather than a domain specific language. It is designed to demonstrate some cool features of using SQL as a langauge for defining business rules:
-- SQL rules are easy to write and understand. 
-- All the things a DSL would need to build out are already built into SQL: no need to reinvent the wheel.
-- SQL tables can be used to define the basic schema, thus forcing rule authors to thing in specific terms from the beginning. For example, thinking pythonically may lead you to define a "float" datatype to represent a currency value, when really a decimal is more appropriate. 
+- TRANSPARENCY: SQL rules are easy to write and understand, and very googlable. With a custom rules language, those wishing to understand the rule need to grok not only the rule itself but also your source code.
+- ECONOMICS: Reduces feature development time. All the things a DSL would need to build out are already built into SQL: no need to reinvent the wheel.
+- PRECISION: SQL tables can be used to define the basic schema, thus forcing rule authors to thing in specific terms from the beginning. For example, thinking pythonically may lead you to define a "float" datatype to represent a currency value, when really a decimal is more appropriate. 
 - PERFORMANCE: Writing rules in SQL means you do not need to transfer data back and forth between the database and application layers, which is a huge bottleneck in performance for large data volumes. Once the data is in, all the processing happens on one box.   
 - SCALABILITY: With advances in massively parallel processing systems like Amazon Redshift and Spark-SQL, you can be confident that your rules will always run in a time-boxed way for any data size, in case you grow out of your traditional relational database's already considerable performance. 
+- PORTABILITY: You're business rules are (nearly) independent of your tech stack. You can rewrite you app without rewriting your business rules.
 
 ## Example Output
 Here's an example output from the rules engine when processing a valid appropriations file:
